@@ -1,0 +1,34 @@
+{
+  "name": "claude-code-anime-sounds",
+  "version": "1.0.0",
+  "description": "Anime-themed sound effects for Claude Code hooks",
+  "main": "src/hook.js",
+  "bin": {
+    "anime-sounds": "bin/anime-sounds.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "themes/"
+  ],
+  "scripts": {
+    "test": "node bin/anime-sounds.js test"
+  },
+  "keywords": [
+    "claude-code",
+    "hooks",
+    "anime",
+    "sound-effects",
+    "kawaii",
+    "notification"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anthropics/claude-code-anime-sounds"
+  }
+}

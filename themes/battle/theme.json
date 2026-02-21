@@ -1,0 +1,11 @@
+{
+  "name": "battle",
+  "displayName": "Battle 战斗系",
+  "description": "热血战斗音效，激发编程斗志",
+  "events": {
+    "Stop": {
+      "se": "se/stop.mp3",
+      "voice": "voice/stop.mp3"
+    }
+  }
+}

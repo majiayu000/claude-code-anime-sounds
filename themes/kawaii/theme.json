@@ -1,0 +1,11 @@
+{
+  "name": "kawaii",
+  "displayName": "Kawaii 萌系",
+  "description": "可爱的动画音效，适合日常编程",
+  "events": {
+    "Stop": {
+      "se": "se/stop.mp3",
+      "voice": "voice/stop.mp3"
+    }
+  }
+}
