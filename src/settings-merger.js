@@ -5,12 +5,6 @@ const os = require('os');
 const SETTINGS_PATH = path.join(os.homedir(), '.claude', 'settings.json');
 const HOOK_MARKER = 'anime-sounds';
 
-function getHookCommand() {
-  // 获取 hook.js 的绝对路径
-  const hookPath = path.join(__dirname, 'hook.js');
-  return `node "${hookPath}"`;
-}
-
 function loadSettings() {
   if (!fs.existsSync(SETTINGS_PATH)) {
     return {};

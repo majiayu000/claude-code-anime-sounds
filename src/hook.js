@@ -12,7 +12,6 @@ const player = require('./player');
 
 const LOG_FILE = path.join(configStore.CONFIG_DIR, 'hook.log');
 const DEBOUNCE_FILE = path.join(configStore.CONFIG_DIR, 'last-played');
-const DEBOUNCE_MS = 15000; // 15 秒防抖
 
 const MAX_LOG_SIZE = 512 * 1024; // 512KB
 
@@ -32,10 +31,10 @@ function log(msg) {
   } catch {}
 }
 
-function shouldPlay() {
+function shouldPlay(debounceMs) {
   try {
     const ts = parseInt(fs.readFileSync(DEBOUNCE_FILE, 'utf-8'), 10);
-    return Date.now() - ts > DEBOUNCE_MS;
+    return Date.now() - ts > debounceMs;
   } catch {
     return true;
   }
@@ -79,13 +78,15 @@ function main() {
       process.exit(0);
     }
 
-    // 时间防抖：15 秒内只播放一次
-    if (!shouldPlay()) {
+    const config = configStore.load();
+    const debounceMs = (config.debounce || 15) * 1000;
+
+    // 时间防抖
+    if (!shouldPlay(debounceMs)) {
       log(`event=${event} skipped (debounce)`);
       process.exit(0);
     }
 
-    const config = configStore.load();
     const themeName = config.theme;
     const volume = config.volume;
 

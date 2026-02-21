@@ -9,6 +9,7 @@ const DEFAULTS = {
   theme: 'kawaii',
   voice: false,
   volume: 0.8,
+  debounce: 15,
 };
 
 function ensureDir() {

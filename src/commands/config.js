@@ -10,9 +10,10 @@ function run(args) {
     console.log('');
     console.log('  当前配置：');
     console.log('');
-    console.log(`  theme  = ${config.theme}`);
-    console.log(`  voice  = ${config.voice ? 'on' : 'off'}`);
-    console.log(`  volume = ${config.volume}`);
+    console.log(`  theme    = ${config.theme}`);
+    console.log(`  voice    = ${config.voice ? 'on' : 'off'}`);
+    console.log(`  volume   = ${config.volume}`);
+    console.log(`  debounce = ${config.debounce}s`);
     console.log('');
     console.log('  用法：anime-sounds config <key> <value>');
     console.log('  示例：anime-sounds config voice on');
@@ -57,9 +58,19 @@ function run(args) {
       require('./theme').run([value]);
       break;
     }
+    case 'debounce': {
+      const secs = parseInt(value, 10);
+      if (isNaN(secs) || secs < 0 || secs > 300) {
+        console.error('  防抖范围：0 - 300（秒）');
+        process.exit(1);
+      }
+      configStore.set('debounce', secs);
+      console.log(`  debounce = ${secs}s`);
+      break;
+    }
     default:
       console.error(`  未知配置项：${key}`);
-      console.error('  可用配置项：voice, volume, theme');
+      console.error('  可用配置项：voice, volume, theme, debounce');
       process.exit(1);
   }
 }
