@@ -1,12 +1,26 @@
-const { spawn } = require('child_process');
+const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
+
+const LINUX_PLAYERS = [
+  { cmd: 'paplay', args: (file) => [file] },
+  { cmd: 'aplay', args: (file) => [file] },
+  { cmd: 'ffplay', args: (file) => ['-nodisp', '-autoexit', '-loglevel', 'quiet', file] },
+];
+
+function findLinuxPlayer() {
+  for (const p of LINUX_PLAYERS) {
+    const result = spawnSync('which', [p.cmd], { stdio: 'ignore' });
+    if (result.status === 0) return p;
+  }
+  return null;
+}
 
 function getPlayer() {
   switch (process.platform) {
     case 'darwin':
       return { cmd: 'afplay', args: (file, volume) => ['-v', String(volume), file] };
     case 'linux':
-      return { cmd: 'paplay', args: (file) => [file] };
+      return findLinuxPlayer();
     case 'win32':
       return {
         cmd: 'powershell',

@@ -39,7 +39,12 @@ function get(key) {
   return load()[key];
 }
 
+const ALLOWED_KEYS = new Set(Object.keys(DEFAULTS));
+
 function set(key, value) {
+  if (!ALLOWED_KEYS.has(key)) {
+    throw new Error(`未知配置项：${key}`);
+  }
   const config = load();
   config[key] = value;
   save(config);

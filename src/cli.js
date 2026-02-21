@@ -5,6 +5,8 @@ const COMMANDS = {
   list: () => require('./commands/list').run(),
   config: (args) => require('./commands/config').run(args),
   test: (args) => require('./commands/test').run(args),
+  status: () => require('./commands/status').run(),
+  logs: (args) => require('./commands/logs').run(args),
 };
 
 function showHelp() {
@@ -20,6 +22,8 @@ function showHelp() {
   console.log('    list                 列出可用主题');
   console.log('    config [key] [val]   查看/修改配置');
   console.log('    test [event]         试听音效');
+  console.log('    status              查看安装状态');
+  console.log('    logs [n]            查看最近 n 条日志（默认 20）');
   console.log('    help                 显示帮助');
   console.log('');
   console.log('  示例：');

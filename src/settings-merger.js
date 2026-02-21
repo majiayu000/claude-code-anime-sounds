@@ -27,10 +27,25 @@ function saveSettings(settings) {
   fs.writeFileSync(SETTINGS_PATH, JSON.stringify(settings, null, 2) + '\n');
 }
 
+const MAX_BACKUPS = 3;
+
 function backup() {
   if (!fs.existsSync(SETTINGS_PATH)) return null;
   const backupPath = SETTINGS_PATH + '.backup-' + Date.now();
   fs.copyFileSync(SETTINGS_PATH, backupPath);
+
+  // 清理旧备份，只保留最近 MAX_BACKUPS 份
+  const dir = path.dirname(SETTINGS_PATH);
+  const prefix = path.basename(SETTINGS_PATH) + '.backup-';
+  const backups = fs.readdirSync(dir)
+    .filter((f) => f.startsWith(prefix))
+    .sort()
+    .map((f) => path.join(dir, f));
+
+  while (backups.length > MAX_BACKUPS) {
+    fs.unlinkSync(backups.shift());
+  }
+
   return backupPath;
 }
 
