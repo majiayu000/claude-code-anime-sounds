@@ -76,26 +76,33 @@ function install() {
   }
 
   let installed = 0;
+  let updated = 0;
 
   for (const event of HOOK_EVENTS) {
     if (!settings.hooks[event]) {
       settings.hooks[event] = [];
     }
 
-    // 检查是否已安装（幂等）
-    const existing = settings.hooks[event].find((entry) =>
+    // 查找已有的 anime-sounds hook
+    const existingIdx = settings.hooks[event].findIndex((entry) =>
       entry.hooks && entry.hooks.some((h) => h.command && h.command.includes(HOOK_MARKER))
     );
 
-    if (!existing) {
-      settings.hooks[event].push(buildHookEntry(event));
+    const newEntry = buildHookEntry(event);
+
+    if (existingIdx === -1) {
+      settings.hooks[event].push(newEntry);
       installed++;
+    } else {
+      // 路径可能变了（包更新），替换为最新的
+      settings.hooks[event][existingIdx] = newEntry;
+      updated++;
     }
   }
 
   saveSettings(settings);
 
-  return { installed, backupPath, total: HOOK_EVENTS.length };
+  return { installed, updated, backupPath, total: HOOK_EVENTS.length };
 }
 
 function uninstall() {
