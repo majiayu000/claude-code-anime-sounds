@@ -47,6 +47,7 @@ anime-sounds theme                # Show current theme
 anime-sounds list                 # List available themes
 anime-sounds config voice on|off  # Toggle voice lines
 anime-sounds config volume 0.7    # Set volume (0.0 - 1.0)
+anime-sounds config debounce 10   # Set debounce interval (seconds)
 anime-sounds test [event]         # Preview sounds
 anime-sounds logs [n]             # Show recent n log entries (default 20)
 anime-sounds --version            # Show version
@@ -78,7 +79,8 @@ Config is stored at `~/.anime-sounds/config.json`:
 {
   "theme": "kawaii",
   "voice": false,
-  "volume": 0.8
+  "volume": 0.8,
+  "debounce": 15
 }
 ```
 
