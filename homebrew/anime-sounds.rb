@@ -14,5 +14,13 @@ class AnimeSounds < Formula
 
   test do
     assert_match "anime-sounds", shell_output("#{bin}/anime-sounds help")
+    assert_match "install", shell_output("#{bin}/anime-sounds help")
+  end
+
+  def caveats
+    <<~EOS
+      运行以下命令注入 hooks：
+        anime-sounds install
+    EOS
   end
 end

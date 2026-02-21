@@ -14,8 +14,19 @@ const LOG_FILE = path.join(configStore.CONFIG_DIR, 'hook.log');
 const DEBOUNCE_FILE = path.join(configStore.CONFIG_DIR, 'last-played');
 const DEBOUNCE_MS = 15000; // 15 秒防抖
 
+const MAX_LOG_SIZE = 512 * 1024; // 512KB
+
 function log(msg) {
   try {
+    // 日志文件超过上限时截断保留后半部分
+    if (fs.existsSync(LOG_FILE)) {
+      const stat = fs.statSync(LOG_FILE);
+      if (stat.size > MAX_LOG_SIZE) {
+        const content = fs.readFileSync(LOG_FILE, 'utf-8');
+        const lines = content.split('\n');
+        fs.writeFileSync(LOG_FILE, lines.slice(Math.floor(lines.length / 2)).join('\n'));
+      }
+    }
     const ts = new Date().toISOString();
     fs.appendFileSync(LOG_FILE, `${ts} ${msg}\n`);
   } catch {}

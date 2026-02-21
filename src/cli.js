@@ -43,6 +43,12 @@ function run(argv) {
     return;
   }
 
+  if (command === '--version' || command === '-v') {
+    const pkg = require('../package.json');
+    console.log(pkg.version);
+    return;
+  }
+
   const handler = COMMANDS[command];
   if (!handler) {
     console.error(`  未知命令：${command}`);
