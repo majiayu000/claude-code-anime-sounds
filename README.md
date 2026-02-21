@@ -1,6 +1,6 @@
 # claude-code-anime-sounds
 
-Anime-themed sound effects for Claude Code hooks. Hear cute or epic sounds when Claude Code completes tasks, sends notifications, or finishes subagent work.
+Anime-themed sound effects for Claude Code hooks. Hear cute or epic sounds when Claude Code completes tasks.
 
 ## Features
 
@@ -33,6 +33,7 @@ anime-sounds install
 ```bash
 anime-sounds uninstall
 npm uninstall -g claude-code-anime-sounds
+rm -rf ~/.anime-sounds
 ```
 
 ## Commands
@@ -40,15 +41,17 @@ npm uninstall -g claude-code-anime-sounds
 ```
 anime-sounds install              # Inject hooks into Claude Code settings
 anime-sounds uninstall            # Remove hooks
-anime-sounds theme kawaii|battle  # Switch theme
+anime-sounds status               # Show install status and config
+anime-sounds theme kawaii|battle   # Switch theme
 anime-sounds theme                # Show current theme
 anime-sounds list                 # List available themes
 anime-sounds config voice on|off  # Toggle voice lines
 anime-sounds config volume 0.7    # Set volume (0.0 - 1.0)
 anime-sounds test [event]         # Preview sounds
+anime-sounds logs [n]             # Show recent n log entries (default 20)
+anime-sounds --version            # Show version
 anime-sounds help                 # Show help
 ```
-
 ## Themes
 
 ### Kawaii (default)
@@ -58,8 +61,6 @@ Cute anime sound effects for a cozy coding vibe.
 | Event | Sound | Voice |
 |-------|-------|-------|
 | Stop | Celebration chime | やったー！ |
-| Notification | Cute bell | せんぱい！ |
-| SubagentStop | Summon return | - |
 
 ### Battle
 
@@ -68,16 +69,6 @@ Epic battle sounds to fuel your coding energy.
 | Event | Sound | Voice |
 |-------|-------|-------|
 | Stop | Victory fanfare | 任務完了！ |
-| Notification | Battle alert | 警報！ |
-| SubagentStop | Reinforcement arrival | - |
-
-## Hook Events
-
-| Event | When |
-|-------|------|
-| `Stop` | Claude Code finishes a task |
-| `Notification` | Claude Code sends a notification |
-| `SubagentStop` | A subagent completes its work |
 
 ## Configuration
 
@@ -91,12 +82,20 @@ Config is stored at `~/.anime-sounds/config.json`:
 }
 ```
 
+## Files
+
+| Path | Description |
+|------|-------------|
+| `~/.anime-sounds/config.json` | User config |
+| `~/.anime-sounds/hook.log` | Hook execution log (auto-rotated at 512KB) |
+| `~/.claude/settings.json` | Claude Code settings (hooks injected here) |
+
 ## Platform Support
 
 | Platform | Player | Status |
 |----------|--------|--------|
 | macOS | afplay | Fully supported |
-| Linux | paplay (PulseAudio) | Supported |
+| Linux | paplay → aplay → ffplay | Supported (auto-detects available player) |
 | Windows | PowerShell SoundPlayer | Basic support |
 
 ## Creating Custom Themes
@@ -111,12 +110,22 @@ Config is stored at `~/.anime-sounds/config.json`:
   "displayName": "Your Theme",
   "description": "Description here",
   "events": {
-    "Stop": { "se": "se/stop.mp3", "voice": "voice/stop.mp3" },
-    "Notification": { "se": "se/notification.mp3" },
-    "SubagentStop": { "se": "se/subagent-stop.mp3" }
+    "Stop": { "se": "se/stop.mp3", "voice": "voice/stop.mp3" }
   }
 }
 ```
+
+## Troubleshooting
+
+**Sounds not playing**
+- Check install status: `anime-sounds status`
+- Check logs: `anime-sounds logs`
+- Test manually: `anime-sounds test Stop`
+- Linux: ensure `paplay`, `aplay`, or `ffplay` is installed
+
+**Hook not triggering**
+- Verify `~/.claude/settings.json` contains `anime-sounds` hook entries
+- Re-run `anime-sounds install`
 
 ## License
 
