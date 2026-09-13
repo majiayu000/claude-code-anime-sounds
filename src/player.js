@@ -1,10 +1,40 @@
 const { spawn, spawnSync } = require('child_process');
 const fs = require('fs');
 
+function clampVolume(volume) {
+  const n = Number(volume);
+  if (!Number.isFinite(n)) return 0.8;
+  return Math.min(1, Math.max(0, n));
+}
+
 const LINUX_PLAYERS = [
-  { cmd: 'paplay', args: (file) => [file] },
-  { cmd: 'aplay', args: (file) => [file] },
-  { cmd: 'ffplay', args: (file) => ['-nodisp', '-autoexit', '-loglevel', 'quiet', file] },
+  {
+    cmd: 'paplay',
+    // paplay --volume expects 0–65536
+    args: (file, volume) => [
+      '--volume',
+      String(Math.round(clampVolume(volume) * 65536)),
+      file,
+    ],
+  },
+  {
+    cmd: 'aplay',
+    // aplay has no volume control
+    args: (file) => [file],
+  },
+  {
+    cmd: 'ffplay',
+    // ffplay -volume expects 0–100
+    args: (file, volume) => [
+      '-nodisp',
+      '-autoexit',
+      '-loglevel',
+      'quiet',
+      '-volume',
+      String(Math.round(clampVolume(volume) * 100)),
+      file,
+    ],
+  },
 ];
 
 function findLinuxPlayer() {
@@ -18,10 +48,14 @@ function findLinuxPlayer() {
 function getPlayer() {
   switch (process.platform) {
     case 'darwin':
-      return { cmd: 'afplay', args: (file, volume) => ['-v', String(volume), file] };
+      return {
+        cmd: 'afplay',
+        args: (file, volume) => ['-v', String(clampVolume(volume)), file],
+      };
     case 'linux':
       return findLinuxPlayer();
     case 'win32':
+      // SoundPlayer has no volume API; volume config is ignored on Windows
       return {
         cmd: 'powershell',
         args: (file) => {

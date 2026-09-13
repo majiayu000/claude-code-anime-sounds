@@ -94,11 +94,11 @@ Config is stored at `~/.anime-sounds/config.json`:
 
 ## Platform Support
 
-| Platform | Player | Status |
-|----------|--------|--------|
-| macOS | afplay | Fully supported |
-| Linux | paplay → aplay → ffplay | Supported (auto-detects available player) |
-| Windows | PowerShell SoundPlayer | Basic support |
+| Platform | Player | Status | Volume |
+|----------|--------|--------|--------|
+| macOS | afplay | Fully supported | Yes (`afplay -v`) |
+| Linux | paplay → aplay → ffplay | Supported (auto-detects available player) | paplay/ffplay yes; aplay no |
+| Windows | PowerShell SoundPlayer | Basic support | Unsupported (config ignored) |
 
 ## Creating Custom Themes
 
