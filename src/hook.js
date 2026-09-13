@@ -79,7 +79,7 @@ function main() {
     }
 
     const config = configStore.load();
-    const debounceMs = (config.debounce || 15) * 1000;
+    const debounceMs = (config.debounce ?? 15) * 1000;
 
     // 时间防抖
     if (!shouldPlay(debounceMs)) {
