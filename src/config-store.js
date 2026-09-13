@@ -18,6 +18,22 @@ function ensureDir() {
   }
 }
 
+function normalizeDebounce(value) {
+  if (typeof value === 'number') {
+    if (!Number.isFinite(value) || value < 0 || value > 300) {
+      return DEFAULTS.debounce;
+    }
+    return value;
+  }
+  if (typeof value === 'string' && value.trim() !== '') {
+    const secs = Number(value);
+    if (Number.isFinite(secs) && secs >= 0 && secs <= 300) {
+      return secs;
+    }
+  }
+  return DEFAULTS.debounce;
+}
+
 function load() {
   ensureDir();
   if (!fs.existsSync(CONFIG_FILE)) {
@@ -25,7 +41,9 @@ function load() {
   }
   try {
     const raw = fs.readFileSync(CONFIG_FILE, 'utf-8');
-    return { ...DEFAULTS, ...JSON.parse(raw) };
+    const config = { ...DEFAULTS, ...JSON.parse(raw) };
+    config.debounce = normalizeDebounce(config.debounce);
+    return config;
   } catch {
     return { ...DEFAULTS };
   }
