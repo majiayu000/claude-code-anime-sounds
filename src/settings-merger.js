@@ -82,6 +82,31 @@ function isAnimeSoundsHook(hook) {
   return Boolean(hook && hook.command && hook.command.includes(HOOK_MARKER));
 }
 
+/**
+ * Collapse every marked anime-sounds command in an entry into one refreshed
+ * hook, while retaining unrelated sibling hooks and matcher-level fields.
+ * Returns true when at least one marked hook was present.
+ */
+function collapseMarkedHooksInEntry(entry, event) {
+  if (!entry.hooks || !Array.isArray(entry.hooks)) return false;
+
+  const firstMarked = entry.hooks.find(isAnimeSoundsHook);
+  if (!firstMarked) return false;
+
+  const refreshed = buildHookCommand(event);
+  const siblings = entry.hooks.filter((h) => !isAnimeSoundsHook(h));
+  entry.hooks = [
+    {
+      ...firstMarked,
+      type: refreshed.type,
+      command: refreshed.command,
+      timeout: refreshed.timeout,
+    },
+    ...siblings,
+  ];
+  return true;
+}
+
 function install() {
   const backupPath = backup();
   const settings = loadSettings();
@@ -98,25 +123,34 @@ function install() {
       settings.hooks[event] = [];
     }
 
-    // 查找已有的 anime-sounds hook（可能与其它 hook 共用同一 matcher entry）
-    const existingIdx = settings.hooks[event].findIndex((entry) =>
-      entry.hooks && entry.hooks.some(isAnimeSoundsHook)
-    );
+    // 查找所有含 anime-sounds 的 matcher entry（可能与其它 hook 共用）
+    const markedEntryIndexes = [];
+    for (let i = 0; i < settings.hooks[event].length; i++) {
+      const entry = settings.hooks[event][i];
+      if (entry.hooks && entry.hooks.some(isAnimeSoundsHook)) {
+        markedEntryIndexes.push(i);
+      }
+    }
 
-    if (existingIdx === -1) {
+    if (markedEntryIndexes.length === 0) {
       settings.hooks[event].push(buildHookEntry(event));
       installed++;
     } else {
-      // 只刷新带 HOOK_MARKER 的 hook 对象，保留同 entry 内兄弟 hooks 与 matcher 级字段
-      const entry = settings.hooks[event][existingIdx];
-      const hookIdx = entry.hooks.findIndex(isAnimeSoundsHook);
-      const refreshed = buildHookCommand(event);
-      entry.hooks[hookIdx] = {
-        ...entry.hooks[hookIdx],
-        type: refreshed.type,
-        command: refreshed.command,
-        timeout: refreshed.timeout,
-      };
+      // 在首个 marked entry 内折叠/刷新全部 marked hooks，保留兄弟 hooks
+      const primaryIdx = markedEntryIndexes[0];
+      collapseMarkedHooksInEntry(settings.hooks[event][primaryIdx], event);
+
+      // 其它 entry 上的重复 marked hooks 剥离；仅剩 marked 时删除该 entry
+      for (let i = markedEntryIndexes.length - 1; i >= 1; i--) {
+        const idx = markedEntryIndexes[i];
+        const entry = settings.hooks[event][idx];
+        const kept = entry.hooks.filter((h) => !isAnimeSoundsHook(h));
+        if (kept.length === 0) {
+          settings.hooks[event].splice(idx, 1);
+        } else {
+          entry.hooks = kept;
+        }
+      }
       updated++;
     }
   }

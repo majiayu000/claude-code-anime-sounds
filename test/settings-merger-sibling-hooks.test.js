@@ -115,6 +115,75 @@ function run() {
   assert.strictEqual(settings.hooks.Stop, undefined, 'empty Stop entry should be removed');
   assert.ok(settings.hooks.PreToolUse, 'unrelated events remain');
 
+  // Duplicate marked hooks in one entry (manual merge leftovers) collapse to one
+  const staleDupA = 'node "/old/a/claude-code-anime-sounds/src/hook.js" Stop';
+  const staleDupB = 'node "/old/b/claude-code-anime-sounds/src/hook.js" Stop';
+  fs.writeFileSync(
+    settingsPath,
+    JSON.stringify(
+      {
+        hooks: {
+          Stop: [
+            {
+              matcher: '',
+              hooks: [
+                {
+                  type: 'command',
+                  command: staleDupA,
+                  timeout: 1000,
+                  extraField: 'from-first',
+                },
+                {
+                  type: 'command',
+                  command: siblingCmd,
+                  timeout: 3000,
+                },
+                {
+                  type: 'command',
+                  command: staleDupB,
+                  timeout: 2000,
+                },
+              ],
+            },
+            {
+              hooks: [
+                {
+                  type: 'command',
+                  command: 'node "/old/c/claude-code-anime-sounds/src/hook.js" Stop',
+                  timeout: 900,
+                },
+              ],
+            },
+          ],
+        },
+      },
+      null,
+      2
+    ) + '\n'
+  );
+
+  const collapseResult = merger.install();
+  assertEqual(collapseResult.updated, 1, 'duplicate marked hooks should update once');
+  assertEqual(collapseResult.installed, 0, 'should not append when marked hooks exist');
+
+  settings = JSON.parse(fs.readFileSync(settingsPath, 'utf-8'));
+  assertEqual(settings.hooks.Stop.length, 1, 'sole-marked duplicate entry should be removed');
+  const collapsed = settings.hooks.Stop[0];
+  assertEqual(collapsed.matcher, '', 'matcher preserved after collapse');
+  assertEqual(collapsed.hooks.length, 2, 'one refreshed anime-sounds + sibling');
+  const markedHooks = collapsed.hooks.filter(
+    (h) => h.command && h.command.includes(merger.HOOK_MARKER)
+  );
+  assertEqual(markedHooks.length, 1, 'all marked duplicates must collapse to one');
+  assert.ok(markedHooks[0].command !== staleDupA, 'collapsed command path must be refreshed');
+  assert.ok(markedHooks[0].command !== staleDupB, 'collapsed command path must be refreshed');
+  assertEqual(markedHooks[0].timeout, 5000, 'collapsed hook uses current timeout');
+  assertEqual(markedHooks[0].extraField, 'from-first', 'fields from first marked hook kept');
+  assert.ok(
+    collapsed.hooks.some((h) => h.command === siblingCmd),
+    'sibling hook must survive collapse'
+  );
+
   // Cleanup temp dir (best-effort)
   for (const name of fs.readdirSync(tmpDir)) {
     fs.unlinkSync(path.join(tmpDir, name));
