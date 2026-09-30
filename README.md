@@ -12,12 +12,11 @@ Anime-themed sound effects for Claude Code hooks. Hear cute or epic sounds when 
 
 ## Install
 
-```bash
-# npm
-npm install -g claude-code-anime-sounds
+Requires Node.js 18 or later. Install from source; the package is not currently
+available from the public npm registry.
 
-# or clone and link
-git clone https://github.com/anthropics/claude-code-anime-sounds.git
+```bash
+git clone https://github.com/majiayu000/claude-code-anime-sounds.git
 cd claude-code-anime-sounds
 npm link
 ```

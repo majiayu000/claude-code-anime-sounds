@@ -1,6 +1,6 @@
 class AnimeSounds < Formula
   desc "Anime-themed sound effects for Claude Code hooks"
-  homepage "https://github.com/anthropics/claude-code-anime-sounds"
+  homepage "https://github.com/majiayu000/claude-code-anime-sounds"
   url "https://registry.npmjs.org/claude-code-anime-sounds/-/claude-code-anime-sounds-1.0.0.tgz"
   sha256 "PLACEHOLDER"
   license "MIT"
