@@ -2,6 +2,8 @@
 
 Anime-themed sound effects for Claude Code hooks. Hear cute or epic sounds when Claude Code completes tasks.
 
+[Install](#install) · [Claude Code Stop sound guide](docs/claude-stop-sound.md) · [Themes](#themes) · [Troubleshooting](#troubleshooting)
+
 ## Features
 
 - **Multi-theme support**: Switch between `kawaii` (cute) and `battle` (epic) themes
