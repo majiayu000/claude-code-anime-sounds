@@ -17,6 +17,7 @@ function run() {
   merger.setSettingsPathForTests(settingsPath);
 
   const staleAnimeCmd = 'node "/old/path/claude-code-anime-sounds/src/hook.js" Stop';
+  const currentAnimeCmd = `node "${path.resolve(__dirname, '../src/hook.js')}" Stop`;
   const siblingCmd = 'node "/tools/vibeguard/hook.js"';
 
   // Fixture: Stop matcher entry with anime-sounds + sibling (vibeguard) + matcher field
@@ -61,7 +62,7 @@ function run() {
   assertEqual(entry.matcher, '', 'matcher-level field must be preserved');
   assertEqual(entry.hooks.length, 2, 'sibling hook must remain');
 
-  const animeHook = entry.hooks.find((h) => h.command && h.command.includes(merger.HOOK_MARKER));
+  const animeHook = entry.hooks.find((h) => h.command === currentAnimeCmd);
   const siblingHook = entry.hooks.find((h) => h.command === siblingCmd);
   assert.ok(animeHook, 'anime-sounds hook must remain');
   assert.ok(siblingHook, 'sibling hook must remain');
@@ -98,9 +99,10 @@ function run() {
   assert.ok(Array.isArray(settings.hooks.Stop), 'Stop hooks array created');
   assertEqual(settings.hooks.Stop.length, 1, 'one new Stop matcher entry');
   assertEqual(settings.hooks.Stop[0].hooks.length, 1, 'new entry has single anime-sounds hook');
-  assert.ok(
-    settings.hooks.Stop[0].hooks[0].command.includes(merger.HOOK_MARKER),
-    'new entry command includes marker'
+  assertEqual(
+    settings.hooks.Stop[0].hooks[0].command,
+    currentAnimeCmd,
+    'new entry command targets the current checkout'
   );
   assertEqual(
     settings.hooks.PreToolUse[0].hooks[0].command,
@@ -172,7 +174,7 @@ function run() {
   assertEqual(collapsed.matcher, '', 'matcher preserved after collapse');
   assertEqual(collapsed.hooks.length, 2, 'one refreshed anime-sounds + sibling');
   const markedHooks = collapsed.hooks.filter(
-    (h) => h.command && h.command.includes(merger.HOOK_MARKER)
+    (h) => h.command === currentAnimeCmd
   );
   assertEqual(markedHooks.length, 1, 'all marked duplicates must collapse to one');
   assert.ok(markedHooks[0].command !== staleDupA, 'collapsed command path must be refreshed');
