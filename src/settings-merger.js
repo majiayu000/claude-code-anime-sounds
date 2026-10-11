@@ -79,7 +79,19 @@ function buildHookEntry(event) {
 }
 
 function isAnimeSoundsHook(hook) {
-  return Boolean(hook && hook.command && hook.command.includes(HOOK_MARKER));
+  if (!hook || hook.type !== 'command' || typeof hook.command !== 'string') return false;
+
+  // Recognize our exact command even when the current checkout was renamed.
+  if (HOOK_EVENTS.some((event) => hook.command === buildHookCommand(event).command)) {
+    return true;
+  }
+
+  // Older installs used the same quoted node command. Retain migration from
+  // standard source/npm package paths, without claiming wrappers, shell chains,
+  // or unrelated commands that merely mention the package name.
+  const legacy = /^node "([^"\r\n]+)" ([A-Za-z]+)$/.exec(hook.command);
+  return Boolean(legacy && HOOK_EVENTS.includes(legacy[2]) &&
+    /(?:^|[\\/])(?:claude-code-)?anime-sounds[\\/]src[\\/]hook\.js$/.test(legacy[1]));
 }
 
 /**
@@ -123,7 +135,7 @@ function install() {
       settings.hooks[event] = [];
     }
 
-    // 查找所有含 anime-sounds 的 matcher entry（可能与其它 hook 共用）
+    // 查找含本项目安装命令的 matcher entry（可能与其它 hook 共用）
     const markedEntryIndexes = [];
     for (let i = 0; i < settings.hooks[event].length; i++) {
       const entry = settings.hooks[event][i];
